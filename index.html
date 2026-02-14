@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Strata — Geoscience Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0e0d0a;--surface:#16140f;--card:#1c1a13;--border:#2e2a1e;--border2:#3d3828;
+      --text:#e8e0cc;--muted:#7a7060;--dim:#4a4535;
+      --gold:#c8a84b;--gold2:#e8c96a;--copper:#b87333;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;min-height:100vh;overflow-x:hidden}
+    nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 3rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(14,13,10,0.95);backdrop-filter:blur(12px);z-index:100}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;letter-spacing:.15em;color:var(--gold);text-transform:uppercase}
+    .nav-logo span{color:var(--muted);font-weight:400}
+    .nav-links{display:flex;gap:2.5rem;list-style:none}
+    .nav-links a{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+    .nav-links a:hover{color:var(--gold)}
+    .nav-cta{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;padding:.5rem 1.2rem;border:1px solid var(--gold);color:var(--gold);text-decoration:none;transition:all .2s}
+    .nav-cta:hover{background:var(--gold);color:#000}
+    .hero{max-width:1200px;margin:0 auto;padding:5rem 3rem 4rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+    .hero-tag{font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:var(--copper);margin-bottom:1.5rem;animation:fadeUp .7s ease both}
+    .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5vw,4.5rem);font-weight:700;line-height:1.05;margin-bottom:1.5rem;animation:fadeUp .7s ease .1s both}
+    .hero h1 em{font-style:italic;color:var(--gold)}
+    .hero-desc{font-size:.75rem;line-height:1.9;color:var(--muted);margin-bottom:2.5rem;animation:fadeUp .7s ease .2s both}
+    .hero-btns{display:flex;gap:1rem;animation:fadeUp .7s ease .3s both}
+    .btn-gold{padding:.75rem 1.8rem;background:var(--gold);color:#0e0d0a;font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;border:none;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+    .btn-gold:hover{background:var(--gold2);transform:translateY(-2px)}
+    .btn-ghost{padding:.75rem 1.8rem;background:transparent;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;border:1px solid var(--border2);cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+    .btn-ghost:hover{border-color:var(--muted);color:var(--text)}
+    .hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);animation:fadeUp .7s ease .4s both}
+    .stat{background:var(--card);padding:1.5rem}
+    .stat-val{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;margin-bottom:.4rem}
+    .stat-label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+    .section-wrap{max-width:1200px;margin:0 auto;padding:0 3rem}
+    .section-label{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--copper);display:flex;align-items:center;gap:1rem;margin-bottom:2rem}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* EXPLORER */
+    #explorer{padding:4rem 0;border-top:1px solid var(--border)}
+    .explorer-grid{display:grid;grid-template-columns:260px 1fr;gap:0;background:var(--border);border:1px solid var(--border)}
+    .controls-panel{background:var(--card);padding:1.8rem 1.4rem;display:flex;flex-direction:column;gap:1.5rem;border-right:1px solid var(--border)}
+    .ctrl-title{font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);padding-bottom:.6rem;border-bottom:1px solid var(--border)}
+    .layer-group{display:flex;flex-direction:column;gap:.45rem}
+    .layer-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:.55rem .75rem;border:1px solid var(--border);transition:all .2s;user-select:none}
+    .layer-toggle:hover{border-color:var(--border2);background:var(--surface)}
+    .layer-toggle.active{border-color:var(--gold);background:rgba(200,168,75,.06)}
+    .layer-name{font-size:.61rem;letter-spacing:.06em;color:var(--text);display:flex;align-items:center;gap:.55rem}
+    .layer-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+    .toggle-sw{width:28px;height:14px;border-radius:7px;background:var(--border2);position:relative;transition:background .2s;flex-shrink:0}
+    .layer-toggle.active .toggle-sw{background:var(--gold)}
+    .toggle-sw::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;background:var(--muted);top:2px;left:2px;transition:all .2s}
+    .layer-toggle.active .toggle-sw::after{left:16px;background:#000}
+    .slider-group{display:flex;flex-direction:column;gap:1.1rem}
+    .slider-item label{display:flex;justify-content:space-between;font-size:.6rem;letter-spacing:.06em;color:var(--muted);margin-bottom:.45rem}
+    .slider-item label span{color:var(--gold2);font-weight:500}
+    input[type=range]{width:100%;-webkit-appearance:none;height:2px;background:var(--border2);outline:none;cursor:pointer;border-radius:1px}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);cursor:pointer;transition:transform .15s;box-shadow:0 0 0 3px rgba(200,168,75,.2)}
+    input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3)}
+    .view-sel{display:flex;gap:1px;background:var(--border)}
+    .view-btn{flex:1;padding:.6rem .3rem;background:var(--surface);border:none;font-family:'IBM Plex Mono',monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s}
+    .view-btn.active{background:rgba(200,168,75,.12);color:var(--gold);border-bottom:2px solid var(--gold)}
+    .view-btn:hover:not(.active){color:var(--text);background:var(--card)}
+    .map-area{background:#0a0c0a;position:relative;overflow:hidden;min-height:600px}
+    canvas{display:block;width:100%;height:100%;touch-action:pan-y}
+    .map-hud-tl{position:absolute;top:1rem;left:1rem;font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(200,168,75,.7);background:rgba(10,12,10,.8);padding:.3rem .7rem;border:1px solid rgba(200,168,75,.2);pointer-events:none}
+    .map-hud-tr{position:absolute;top:1rem;right:1rem;font-size:.55rem;color:rgba(120,112,96,.6);pointer-events:none;text-align:right;line-height:1.6}
+    .map-legend{position:absolute;bottom:1rem;left:1rem;background:rgba(10,12,10,.88);border:1px solid var(--border);padding:.8rem 1rem;pointer-events:none}
+    .leg-title{font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+    .leg-item{display:flex;align-items:center;gap:.5rem;font-size:.54rem;color:var(--muted);margin-top:.32rem}
+    .leg-sw{width:22px;height:7px;border-radius:1px}
+    .map-crosshair{position:absolute;bottom:1rem;right:1rem;font-size:.52rem;color:rgba(74,69,53,.8);pointer-events:none;text-align:right}
+    /* CAROUSEL */
+    .carousel-outer{position:relative;padding:0 0 2.5rem}
+    .carousel-viewport{overflow:hidden;position:relative}
+    .carousel-track{display:flex;gap:0;will-change:transform}
+    .carousel-card{
+      flex:0 0 calc(33.333% - 1px);min-width:0;
+      background:var(--card);padding:2.2rem 1.8rem;
+      border-right:1px solid var(--border);border-bottom:1px solid var(--border);border-top:1px solid var(--border);
+      transition:background .25s;
+    }
+    .carousel-card:first-child{border-left:1px solid var(--border)}
+    .carousel-card:hover{background:var(--surface)}
+    .fi{font-size:1.4rem;margin-bottom:1rem}
+    .carousel-card h3{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;margin-bottom:.65rem}
+    .carousel-card p{font-size:.67rem;line-height:1.85;color:var(--muted)}
+    .carousel-controls{display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem}
+    .carousel-dots{display:flex;gap:.5rem;align-items:center}
+    .carousel-dot{width:5px;height:5px;border-radius:50%;background:var(--border2);transition:all .3s;cursor:pointer}
+    .carousel-dot.active{background:var(--gold);width:18px;border-radius:3px}
+    .chevron-btns{display:flex;gap:.75rem}
+    .chevron-btn{
+      width:40px;height:40px;border:1px solid var(--border2);background:transparent;
+      color:var(--muted);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      transition:all .2s;font-family:'IBM Plex Mono',monospace;
+    }
+    .chevron-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(200,168,75,.07)}
+    .chevron-btn:active{transform:scale(.92)}
+    .cta-section{padding:5rem 3rem;text-align:center;border-top:1px solid var(--border);position:relative;overflow:hidden}
+    .cta-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(200,168,75,.06) 0%,transparent 70%);pointer-events:none}
+    .cta-section h2{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:700;margin-bottom:1rem;position:relative}
+    .cta-section p{font-size:.72rem;color:var(--muted);margin-bottom:2rem;position:relative}
+    footer{border-top:1px solid var(--border);padding:1.8rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    footer p{font-size:.6rem;color:var(--dim);letter-spacing:.1em}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+    .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:200}
+    .hamburger span{display:block;width:22px;height:1.5px;background:var(--muted);transition:all .3s;transform-origin:center}
+    .hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);background:var(--gold)}
+    .hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+    .hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);background:var(--gold)}
+
+    .mobile-nav{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(14,13,10,0.97);backdrop-filter:blur(16px);z-index:150;flex-direction:column;align-items:center;justify-content:center;gap:2.5rem}
+    .mobile-nav.open{display:flex;animation:slideDown .25s ease}
+    .mobile-nav a{font-size:1.4rem;color:var(--muted);text-decoration:none;letter-spacing:.15em;font-family:'Cormorant Garamond',serif;font-weight:600;transition:color .2s}
+    .mobile-nav a:hover,.mobile-nav a:active{color:var(--gold)}
+    .mobile-nav .mobile-cta{font-family:'IBM Plex Mono',monospace;font-size:.75rem;padding:.9rem 2.5rem;border:1px solid var(--gold);color:var(--gold);margin-top:1rem;text-decoration:none}
+
+    @media(max-width:1200px){
+      .hero{max-width:100%;padding:5rem 2rem 4rem}
+      .section-wrap{padding:0 2rem}
+    }
+
+    @media(max-width:900px){
+      nav{padding:1.1rem 1.5rem}
+      .nav-links,.nav-cta{display:none}
+      .hamburger{display:flex}
+      .hero{grid-template-columns:1fr;padding:3.5rem 1.5rem 3rem;gap:2.5rem}
+      .hero h1{font-size:clamp(2.4rem,7vw,3.5rem)}
+      .hero-stats{grid-template-columns:repeat(4,1fr)}
+      .section-wrap{padding:0 1.5rem}
+      .explorer-grid{grid-template-columns:1fr}
+      .controls-panel{flex-direction:row;flex-wrap:wrap;gap:1.2rem;padding:1.2rem;border-right:none;border-bottom:1px solid var(--border)}
+      .controls-panel > *{flex:1 1 45%;min-width:140px}
+      .view-sel{flex:0 0 100%}
+      .map-area{min-height:420px}
+      .carousel-card{flex:0 0 calc(50% - 0.5px)}
+      .cta-section{padding:3.5rem 1.5rem}
+      footer{padding:1.5rem;flex-direction:column;align-items:flex-start;gap:.5rem}
+    }
+
+    @media(max-width:600px){
+      nav{padding:1rem 1.25rem}
+      .hero{padding:2.5rem 1.25rem 2rem;gap:2rem}
+      .hero-tag{font-size:.58rem}
+      .hero h1{font-size:clamp(2rem,8vw,2.8rem)}
+      .hero-desc{font-size:.72rem}
+      .hero-btns{flex-direction:column}
+      .btn-gold,.btn-ghost{text-align:center;padding:.9rem 1.5rem}
+      .hero-stats{grid-template-columns:1fr 1fr}
+      .section-wrap{padding:0 1.25rem}
+      #explorer{padding:2.5rem 0}
+      #features{padding:2.5rem 0}
+      .controls-panel{padding:1rem;gap:1rem}
+      .controls-panel > *{flex:1 1 100%}
+      .slider-group{gap:.9rem}
+      .map-area{min-height:340px}
+      .map-hud-tl{font-size:.5rem;padding:.25rem .5rem}
+      .map-hud-tr{display:none}
+      .map-legend{padding:.5rem .7rem}
+      .leg-title{font-size:.5rem}
+      .leg-item{font-size:.5rem}
+      .carousel-card{flex:0 0 100%}
+      .chevron-btn{width:44px;height:44px;font-size:1.1rem}
+      .cta-section{padding:3rem 1.25rem}
+      .cta-section h2{font-size:clamp(1.7rem,6vw,2.5rem)}
+      footer{padding:1.25rem;gap:.4rem}
+      footer p{font-size:.58rem}
+    }
+
+    @media(max-width:400px){
+      .hero h1{font-size:1.9rem}
+      .stat-val{font-size:1.7rem}
+      .map-area{min-height:280px}
+    }
+
+    @media(hover:none){
+      .layer-toggle{padding:.75rem .8rem}
+      .chevron-btn{min-width:48px;min-height:48px}
+      input[type=range]{height:18px;padding:8px 0}
+      input[type=range]::-webkit-slider-thumb{width:22px;height:22px}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Strata <span>/ Geoscience</span></div>
+  <ul class="nav-links">
+    <li><a href="#explorer">Explorer</a></li>
+    <li><a href="#features">Capabilities</a></li>
+    <li><a href="#cta">Contact</a></li>
+  </ul>
+  <a href="#cta" class="nav-cta">Request Demo</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMobileNav()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="#explorer" onclick="closeMobileNav()">Explorer</a>
+  <a href="#features" onclick="closeMobileNav()">Capabilities</a>
+  <a href="#cta" onclick="closeMobileNav()">Contact</a>
+  <a href="#cta" class="mobile-cta" onclick="closeMobileNav()">Request Demo →</a>
+</div>
+
+<div class="hero section-wrap">
+  <div>
+    <div class="hero-tag">✦ Subsurface Intelligence Platform</div>
+    <h1>Turn raw data into <em>discovery.</em></h1>
+    <p class="hero-desc">We transform complex geophysical datasets into interactive, client-ready intelligence. From conductivity surveys to drill targeting — your data, made actionable.</p>
+    <div class="hero-btns">
+      <a href="#explorer" class="btn-gold">Explore the Demo →</a>
+      <a href="#features" class="btn-ghost">Our Capabilities</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-val">340+</div><div class="stat-label">Surveys Processed</div></div>
+    <div class="stat"><div class="stat-val">98%</div><div class="stat-label">Target Accuracy</div></div>
+    <div class="stat"><div class="stat-val">12×</div><div class="stat-label">Faster Interpretation</div></div>
+    <div class="stat"><div class="stat-val">60+</div><div class="stat-label">Active Projects</div></div>
+  </div>
+</div>
+
+<section id="explorer" style="padding:4rem 0;border-top:1px solid var(--border)">
+  <div class="section-wrap">
+    <div class="section-label">Interactive Field Explorer</div>
+    <div class="explorer-grid">
+      <!-- CONTROLS -->
+      <div class="controls-panel">
+        <div class="ctrl-title">Geological Layers</div>
+        <div class="layer-group">
+          <div class="layer-toggle active" data-layer="surface" onclick="toggleLayer(this)">
+            <div class="layer-name"><div class="layer-dot" style="background:#5a7a4a"></div>Surface Terrain</div>
+            <div class="toggle-sw"></div>
+          </div>
+          <div class="layer-toggle active" data-layer="conductivity" onclick="toggleLayer(this)">
+            <div class="layer-name"><div class="layer-dot" style="background:#2255cc"></div>EM Conductivity</div>
+            <div class="toggle-sw"></div>
+          </div>
+          <div class="layer-toggle active" data-layer="magnetics" onclick="toggleLayer(this)">
+            <div class="layer-name"><div class="layer-dot" style="background:#cc4422"></div>Magnetics</div>
+            <div class="toggle-sw"></div>
+          </div>
+          <div class="layer-toggle active" data-layer="ore" onclick="toggleLayer(this)">
+            <div class="layer-name"><div class="layer-dot" style="background:#c8a84b"></div>Ore Probability</div>
+            <div class="toggle-sw"></div>
+          </div>
+          <div class="layer-toggle active" data-layer="drillholes" onclick="toggleLayer(this)">
+            <div class="layer-name"><div class="layer-dot" style="background:#e85555"></div>Drill Holes</div>
+            <div class="toggle-sw"></div>
+          </div>
+          <div class="layer-toggle active" data-layer="formations" onclick="toggleLayer(this)">
+            <div class="layer-name"><div class="layer-dot" style="background:#b87333"></div>Formations</div>
+            <div class="toggle-sw"></div>
+          </div>
+        </div>
+
+        <div class="ctrl-title">Parameters</div>
+        <div class="slider-group">
+          <div class="slider-item">
+            <label>Drill Depth <span id="depthVal">350m</span></label>
+            <input type="range" min="50" max="600" value="350" oninput="S.depth=+this.value;document.getElementById('depthVal').textContent=this.value+'m';draw()"/>
+          </div>
+          <div class="slider-item">
+            <label>Ore Threshold <span id="oreVal">0.3%</span></label>
+            <input type="range" min="1" max="10" value="3" oninput="S.oreT=this.value/10;document.getElementById('oreVal').textContent=(this.value/10).toFixed(1)+'%';draw()"/>
+          </div>
+          <div class="slider-item">
+            <label>Slice Depth <span id="sliceVal">50%</span></label>
+            <input type="range" min="5" max="95" value="50" oninput="S.slice=this.value/100;document.getElementById('sliceVal').textContent=this.value+'%';draw()"/>
+          </div>
+          <div class="slider-item">
+            <label>Azimuth <span id="azVal">25°</span></label>
+            <input type="range" min="0" max="60" value="25" oninput="S.azimuth=+this.value;document.getElementById('azVal').textContent=this.value+'°';draw()"/>
+          </div>
+          <div class="slider-item">
+            <label>Plunge <span id="plungeVal">30°</span></label>
+            <input type="range" min="10" max="60" value="30" oninput="S.plunge=+this.value;document.getElementById('plungeVal').textContent=this.value+'°';draw()"/>
+          </div>
+        </div>
+
+        <div class="ctrl-title">View Mode</div>
+        <div class="view-sel">
+          <button class="view-btn active" onclick="setView('raster',this)">Raster</button>
+          <button class="view-btn" onclick="setView('block',this)">Block</button>
+          <button class="view-btn" onclick="setView('section',this)">Section</button>
+        </div>
+      </div>
+
+      <!-- MAP -->
+      <div class="map-area" id="mapArea">
+        <canvas id="mapCanvas"></canvas>
+        <div class="map-hud-tl" id="viewLabel">EM Conductivity Raster — Thira Target</div>
+        <div class="map-hud-tr" id="hudTR">49°12'18"N &nbsp; 124°51'42"W<br>Datum: WGS84 · UTM Zone 10N</div>
+        <div class="map-legend" id="mapLegend">
+          <div class="leg-title" id="legTitle">Conductivity (S/m)</div>
+          <div id="legItems"></div>
+        </div>
+        <div class="map-crosshair" id="crosshair">Plunge +0° &nbsp; Azimuth 0°</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" style="padding:4rem 0;border-top:1px solid var(--border)">
+  <div class="section-wrap">
+    <div class="section-label">Capabilities</div>
+    <div class="carousel-outer">
+      <div class="carousel-viewport" id="carouselVP">
+        <div class="carousel-track" id="carouselTrack">
+          <!-- Cards injected by JS -->
+        </div>
+      </div>
+      <div class="carousel-controls">
+        <div class="carousel-dots" id="carouselDots"></div>
+        <div class="chevron-btns">
+          <button class="chevron-btn" id="prevBtn" aria-label="Previous">&#8592;</button>
+          <button class="chevron-btn" id="nextBtn" aria-label="Next">&#8594;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section" id="cta">
+  <h2>Ready to see your data <em style="color:var(--gold)">come alive?</em></h2>
+  <p>We'll build a live interactive explorer from your actual survey data — delivered in days.</p>
+  <a href="mailto:hello@stratageoscience.com" class="btn-gold">Get in Touch →</a>
+</div>
+
+<footer>
+  <p>© 2026 Strata Geoscience. All rights reserved.</p>
+  <p>Deployed on Vercel · Built with precision</p>
+</footer>
+
+<script>
+// ── State ──
+const S={
+  layers:{surface:true,conductivity:true,magnetics:true,ore:true,drillholes:true,formations:true},
+  depth:350, oreT:0.3, slice:0.5, azimuth:25, plunge:30,
+  view:'raster'
+};
+
+const canvas=document.getElementById('mapCanvas');
+const ctx=canvas.getContext('2d');
+
+function resize(){
+  const a=document.getElementById('mapArea');
+  canvas.width=a.clientWidth||820;
+  canvas.height=Math.max(600,a.clientHeight||600);
+  draw();
+}
+window.addEventListener('resize',resize);
+setTimeout(resize,100);
+
+// ── Noise ──
+function h(x,y){const n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n);}
+function sn(x,y,seed){
+  seed=seed||0;
+  let v=0,a=1,f=1,mx=0;
+  for(let i=0;i<7;i++){v+=h(x*f+seed,y*f+seed*1.3)*a;mx+=a;a*=0.5;f*=2.1;}
+  return v/mx;
+}
+
+// ── Colour maps ──
+function lerp(a,b,t){return a+(b-a)*t;}
+function lerpRGB(c1,c2,t){return [lerp(c1[0],c2[0],t),lerp(c1[1],c2[1],t),lerp(c1[2],c2[2],t)];}
+
+// Jet-like colormap (blue→cyan→green→yellow→red) - like reference image 2
+function jetColor(v){
+  v=Math.max(0,Math.min(1,v));
+  if(v<0.25){const t=v/0.25;return lerpRGB([0,0,180],[0,180,255],t);}
+  if(v<0.5){const t=(v-0.25)/0.25;return lerpRGB([0,180,255],[50,220,100],t);}
+  if(v<0.75){const t=(v-0.5)/0.25;return lerpRGB([50,220,100],[240,220,30],t);}
+  const t=(v-0.75)/0.25;return lerpRGB([240,220,30],[220,40,20],t);
+}
+
+// Geological formation colors (reference image 1)
+const FORMATIONS=[
+  {name:'Alluvium',    color:[180,180,180],depth:0.00},
+  {name:'Careaga',     color:[200,190,80], depth:0.10},
+  {name:'Foxen',       color:[60,80,40],   depth:0.20},
+  {name:'Monterey',    color:[160,60,30],  depth:0.32},
+  {name:'Orcutt',      color:[200,160,80], depth:0.46},
+  {name:'Paso Robles', color:[180,140,100],depth:0.60},
+  {name:'Sisquoc',     color:[100,100,100],depth:0.75},
+  {name:'Basement',    color:[60,55,50],   depth:0.88},
+];
+
+// ── RASTER VIEW (like reference image 2) ──
+function drawRaster(){
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  ctx.fillStyle='#1a1f1a';ctx.fillRect(0,0,W,H);
+
+  // Draw raster heatmap
+  const id=ctx.createImageData(W,H);
+  for(let px=0;px<W;px++){
+    for(let py=0;py<H;py++){
+      const nx=px/W, ny=py/H;
+
+      // Irregular boundary (like MA shape in ref)
+      const boundary=sn(nx*2,ny*2,7)*0.15;
+      const inBounds = nx>0.04+boundary && nx<0.95-boundary*0.5 && ny>0.05+boundary*0.5 && ny<0.92-boundary;
+
+      const i=(py*W+px)*4;
+      if(!inBounds){
+        id.data[i]=25;id.data[i+1]=28;id.data[i+2]=22;id.data[i+3]=255;
+        continue;
+      }
+
+      // Base conductivity field
+      let val=0;
+      // Main anomaly blob centre-left
+      const cx1=0.35, cy1=0.45;
+      const d1=Math.sqrt((nx-cx1)**2*1.5+(ny-cy1)**2*1.2);
+      val+=Math.max(0,1-d1*2.2)*0.9;
+
+      // Secondary anomaly top-right
+      const cx2=0.72, cy2=0.28;
+      const d2=Math.sqrt((nx-cx2)**2+(ny-cy2)**2*0.8);
+      val+=Math.max(0,1-d2*3)*0.6;
+
+      // Noise texture (fractal)
+      val+=sn(nx*6,ny*6,1)*0.25;
+      val+=sn(nx*14,ny*14,2)*0.12;
+      val+=sn(nx*28,ny*28,3)*0.06;
+
+      // EM conductivity layer boost
+      if(S.layers.conductivity) val*=1.0; else val*=0.3;
+
+      // Magnetics shift
+      if(S.layers.magnetics){
+        const mx=0.28,my=0.38;
+        const dm=Math.sqrt((nx-mx)**2*0.8+(ny-my)**2);
+        val+=Math.max(0,1-dm*3)*0.25*sn(nx*4,ny*4,9);
+      }
+
+      val=Math.max(0,Math.min(1,val));
+
+      // Apply ore threshold masking
+      let displayVal=val;
+      if(S.layers.ore && val>S.oreT*0.5){
+        displayVal=val; // highlight high values
+      }
+
+      const [r,g,b]=jetColor(displayVal);
+      id.data[i]=r;id.data[i+1]=g;id.data[i+2]=b;id.data[i+3]=245;
+    }
+  }
+  ctx.putImageData(id,0,0);
+
+  // Thin boundary line (like the map outline in ref 2)
+  ctx.save();
+  ctx.strokeStyle='rgba(200,168,75,0.5)';ctx.lineWidth=1.5;
+  ctx.beginPath();
+  // Rough polygon outline
+  const pts=[[0.04,0.18],[0.02,0.45],[0.05,0.70],[0.08,0.90],[0.35,0.93],[0.55,0.88],[0.72,0.92],[0.88,0.88],[0.95,0.65],[0.92,0.40],[0.88,0.20],[0.70,0.06],[0.45,0.05],[0.20,0.07],[0.04,0.18]];
+  ctx.moveTo(pts[0][0]*W,pts[0][1]*H);
+  pts.forEach(p=>ctx.lineTo(p[0]*W,p[1]*H));
+  ctx.stroke();
+  ctx.restore();
+
+  // Drill hole dots
+  if(S.layers.drillholes){
+    const holes=[
+      {x:.35,y:.45,size:1.2},{x:.28,y:.38,size:1},{x:.42,y:.52,size:1},
+      {x:.38,y:.30,size:.9},{x:.25,y:.55,size:.8},{x:.48,y:.40,size:1.1},
+      {x:.72,y:.28,size:.7},{x:.65,y:.35,size:.8},{x:.31,y:.62,size:.9},
+    ];
+    holes.forEach((h,i)=>{
+      const isMain=i===0;
+      const r=isMain?7:4;
+      ctx.beginPath();ctx.arc(h.x*W,h.y*H,r+3,0,Math.PI*2);
+      ctx.fillStyle=isMain?'rgba(232,85,85,0.25)':'rgba(200,168,75,0.15)';ctx.fill();
+      ctx.beginPath();ctx.arc(h.x*W,h.y*H,r,0,Math.PI*2);
+      ctx.fillStyle=isMain?'#e85555':'#c8a84b';ctx.fill();
+      if(isMain){
+        ctx.strokeStyle='rgba(232,85,85,0.5)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.arc(h.x*W,h.y*H,r+6,0,Math.PI*2);ctx.stroke();
+      }
+    });
+  }
+
+  // Ore contour lines
+  if(S.layers.ore){
+    ctx.save();ctx.strokeStyle='rgba(232,201,106,0.65)';ctx.lineWidth=1.2;ctx.setLineDash([5,4]);
+    for(let cr=0.2;cr<0.9;cr+=0.2){
+      ctx.beginPath();
+      ctx.ellipse(W*.35,H*.45,W*(0.08+cr*0.12),H*(0.07+cr*0.10),-0.2,0,Math.PI*2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Scale bar & labels
+  drawRasterHUD(W,H);
+  updateLegend('raster');
+}
+
+function drawRasterHUD(W,H){
+  // Title banner
+  ctx.fillStyle='rgba(160,20,20,0.85)';
+  ctx.fillRect(0,0,W,28);
+  ctx.fillStyle='#fff';ctx.font='bold 11px IBM Plex Mono';
+  ctx.fillText('Bedrock Conductivity Anomaly — Thira Target Survey Block',10,18);
+
+  // Scale bar
+  ctx.fillStyle='rgba(10,12,10,0.7)';ctx.fillRect(W-140,H-40,130,30);
+  ctx.fillStyle='#fff';ctx.fillRect(W-130,H-22,100,4);
+  ctx.fillStyle='#fff';ctx.font='9px IBM Plex Mono';
+  ctx.fillText('0',W-132,H-10);ctx.fillText('5 km',W-60,H-10);ctx.fillText('10 km',W-30,H-10);
+
+  // Compass
+  ctx.save();ctx.translate(W-35,55);
+  ctx.fillStyle='rgba(10,12,10,0.65)';ctx.beginPath();ctx.arc(0,0,20,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#e85555';ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(5,0);ctx.lineTo(-5,0);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#888';ctx.beginPath();ctx.moveTo(0,16);ctx.lineTo(5,0);ctx.lineTo(-5,0);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='bold 9px IBM Plex Mono';ctx.textAlign='center';ctx.fillText('N',0,-8);
+  ctx.restore();
+}
+
+// ── BLOCK MODEL VIEW (like reference image 1) ──
+function drawBlock(){
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#1a1e18';ctx.fillRect(0,0,W,H);
+
+  const az=S.azimuth*(Math.PI/180);
+  const pl=S.plunge*(Math.PI/180);
+
+  // Isometric projection with azimuth/plunge control
+  const cosA=Math.cos(az),sinA=Math.sin(az);
+  const cosP=Math.cos(pl),sinP=Math.sin(pl);
+  const sc=Math.min(W,H)/2.2;
+  const ox=W*0.48,oy=H*0.30;
+
+  function proj(gx,gy,gz){
+    // rotate by azimuth
+    const rx=gx*cosA-gy*sinA;
+    const ry=gx*sinA+gy*cosA;
+    // project with plunge (perspective-ish iso)
+    return{
+      x:ox+(rx-ry*0.5)*sc*0.45,
+      y:oy+(rx*0.25+ry*0.18-gz*0.55)*sc*0.45
+    };
+  }
+
+  const NX=22,NY=14,NZ=8;
+  const sliceX=Math.floor(S.slice*NX);
+
+  // Draw back walls first
+  // Bottom face
+  ctx.fillStyle='rgba(40,45,35,0.6)';
+  const b00=proj(0,0,0),b10=proj(NX,0,0),b11=proj(NX,NY,0),b01=proj(0,NY,0);
+  ctx.beginPath();ctx.moveTo(b00.x,b00.y);ctx.lineTo(b10.x,b10.y);ctx.lineTo(b11.x,b11.y);ctx.lineTo(b01.x,b01.y);ctx.closePath();ctx.fill();
+
+  // Draw terrain surface + geological block
+  for(let iz=NZ-1;iz>=0;iz--){
+    for(let iy=NY-1;iy>=0;iy--){
+      for(let ix=NX-1;ix>=0;ix--){
+        const nx=ix/NX,ny=iy/NY,nz=iz/NZ;
+        const terrainH=sn(nx*3,ny*3,5)*0.4+0.6;
+
+        // Above terrain = surface texture
+        const isAboveTerrain=(1-nz)<terrainH;
+        // Cut slice
+        const isSliced=(ix>=sliceX);
+
+        // Find formation
+        const depth=1-nz;
+        let fColor=[80,80,80];
+        if(S.layers.formations){
+          for(let f=FORMATIONS.length-1;f>=0;f--){
+            if(depth>=FORMATIONS[f].depth){fColor=FORMATIONS[f].color;break;}
+          }
+        }
+
+        // Ore probability
+        let oreBoost=0;
+        if(S.layers.ore){
+          const ocx=0.4,ocy=0.5,ocz=0.5;
+          const od=Math.sqrt((nx-ocx)**2*1.5+(ny-ocy)**2+(nz-ocz)**2*0.8);
+          oreBoost=Math.max(0,(1-od*2.5)*S.oreT*3);
+        }
+
+        const p0=proj(ix,iy,iz),p1=proj(ix+1,iy,iz);
+        const p2=proj(ix+1,iy+1,iz),p3=proj(ix,iy+1,iz);
+        const p4=proj(ix,iy,iz+1),p5=proj(ix+1,iy,iz+1);
+        const p6=proj(ix+1,iy+1,iz+1),p7=proj(ix,iy+1,iz+1);
+
+        if(isAboveTerrain&&!isSliced){
+          // Surface texture
+          if(iz===NZ-1||!isAboveTerrain){
+            const brightness=0.6+sn(nx*8,ny*8,4)*0.4;
+            let sc2=fColor.map(c=>Math.floor(c*brightness));
+            if(oreBoost>0.1)sc2=[Math.floor(sc2[0]*.5+200*oreBoost),Math.floor(sc2[1]*.5+160*oreBoost),Math.floor(sc2[2]*.2)];
+
+            // Top face
+            ctx.beginPath();ctx.moveTo(p4.x,p4.y);ctx.lineTo(p5.x,p5.y);ctx.lineTo(p6.x,p6.y);ctx.lineTo(p7.x,p7.y);ctx.closePath();
+            ctx.fillStyle='rgb('+sc2[0]+','+sc2[1]+','+sc2[2]+')';ctx.fill();
+            ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=0.3;ctx.stroke();
+          }
+        } else if(isSliced||!isAboveTerrain){
+          // Show cross-section face (right face when sliced)
+          if(ix===sliceX&&isSliced){
+            let sc2=fColor.map(c=>Math.floor(c*0.9));
+            if(oreBoost>0.1)sc2=[Math.floor(sc2[0]*.4+220*oreBoost),Math.floor(sc2[1]*.4+140*oreBoost),Math.floor(sc2[2]*.2)];
+            // Right face (slice face)
+            ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p5.x,p5.y);ctx.lineTo(p6.x,p6.y);ctx.lineTo(p2.x,p2.y);ctx.closePath();
+            ctx.fillStyle='rgb('+sc2[0]+','+sc2[1]+','+sc2[2]+')';ctx.fill();
+            ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=0.3;ctx.stroke();
+          }
+          // Front face
+          if(iy===0){
+            let sc2=fColor.map(c=>Math.floor(c*0.75));
+            if(oreBoost>0.1)sc2=[Math.floor(sc2[0]*.4+200*oreBoost),Math.floor(sc2[1]*.4+130*oreBoost),0];
+            ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p4.x,p4.y);ctx.lineTo(p5.x,p5.y);ctx.lineTo(p1.x,p1.y);ctx.closePath();
+            ctx.fillStyle='rgb('+sc2[0]+','+sc2[1]+','+sc2[2]+')';ctx.fill();
+            ctx.strokeStyle='rgba(0,0,0,0.12)';ctx.lineWidth=0.3;ctx.stroke();
+          }
+        }
+      }
+    }
+  }
+
+  // Drill holes
+  if(S.layers.drillholes){
+    const dholes=[
+      {gx:8, gy:7},{gx:11,gy:5},{gx:14,gy:9},{gx:6,gy:4},
+      {gx:17,gy:6},{gx:9,gy:11},{gx:13,gy:3},{gx:5,gy:9},
+      {gx:16,gy:10},{gx:10,gy:8},{gx:7,gy:6},{gx:15,gy:7},
+    ];
+    const depthFrac=S.depth/600;
+    dholes.forEach((dh,i)=>{
+      const top=proj(dh.gx,dh.gy,NZ);
+      const bot=proj(dh.gx,dh.gy,NZ*(1-depthFrac*0.85));
+      const isMain=(i<3);
+      ctx.strokeStyle=isMain?'#e85555':'#b87333';
+      ctx.lineWidth=isMain?2:1.2;
+      ctx.beginPath();ctx.moveTo(top.x,top.y);ctx.lineTo(bot.x,bot.y);ctx.stroke();
+      ctx.beginPath();ctx.arc(top.x,top.y,isMain?3:2,0,Math.PI*2);
+      ctx.fillStyle=isMain?'#e85555':'#c8a84b';ctx.fill();
+    });
+  }
+
+  // EM conductivity overlay as coloured contours on top
+  if(S.layers.conductivity){
+    ctx.save();ctx.globalAlpha=0.35;
+    for(let i=0;i<5;i++){
+      const r=0.12+i*0.06;
+      const pt0=proj(NX*.4+NX*r*.8,NY*.5,NZ*.9);
+      const pt1=proj(NX*.4,NY*.5+NY*r*.6,NZ*.9);
+      const pt2=proj(NX*.4-NX*r*.5,NY*.5,NZ*.9);
+      const pt3=proj(NX*.4,NY*.5-NY*r*.4,NZ*.9);
+      const [cr,cg,cb]=jetColor(1-i*.2);
+      ctx.strokeStyle='rgb('+Math.floor(cr)+','+Math.floor(cg)+','+Math.floor(cb)+')';
+      ctx.lineWidth=1.5-i*.2;
+      ctx.beginPath();ctx.moveTo(pt0.x,pt0.y);ctx.quadraticCurveTo(pt1.x,pt1.y,pt2.x,pt2.y);ctx.quadraticCurveTo(pt3.x,pt3.y,pt0.x,pt0.y);ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Formation legend (top right, like ref image 1)
+  if(S.layers.formations){
+    const lx=W-130,ly=30;
+    ctx.fillStyle='rgba(10,12,10,0.82)';ctx.fillRect(lx-8,ly-6,125,FORMATIONS.length*18+20);
+    ctx.fillStyle='#c8a84b';ctx.font='bold 9px IBM Plex Mono';ctx.fillText('Formations',lx,ly+6);
+    FORMATIONS.forEach((f,i)=>{
+      const y=ly+20+i*18;
+      ctx.fillStyle='rgb('+f.color[0]+','+f.color[1]+','+f.color[2]+')';
+      ctx.fillRect(lx,y,12,10);
+      ctx.fillStyle='#aaa';ctx.font='8px IBM Plex Mono';ctx.fillText(f.name,lx+16,y+8);
+    });
+  }
+
+  // HUD
+  ctx.fillStyle='rgba(10,12,10,0.7)';ctx.fillRect(0,0,W,24);
+  ctx.fillStyle='#c8a84b';ctx.font='bold 10px IBM Plex Mono';
+  ctx.fillText('3D Geological Block Model — Thira Target',10,16);
+  ctx.fillStyle='#7a7060';ctx.font='9px IBM Plex Mono';
+  ctx.fillText('Plunge +'+S.plunge+'°  Azimuth '+S.azimuth+'°  Slice '+Math.round(S.slice*100)+'%',W-250,H-10);
+
+  updateLegend('block');
+}
+
+// ── SECTION VIEW ──
+function drawSection(){
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#0e0d0a';ctx.fillRect(0,0,W,H);
+
+  ctx.strokeStyle='rgba(46,42,30,.25)';ctx.lineWidth=0.5;
+  for(let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  const top=70,bot=H-40,maxD=S.depth;
+  const toY=d=>top+(d/maxD)*(bot-top);
+
+  // Depth axis
+  ctx.fillStyle='#4a4535';ctx.font='9px IBM Plex Mono';
+  for(let d=0;d<=maxD;d+=100){
+    const y=toY(d);
+    ctx.fillText(d+'m',6,y+3);
+    ctx.strokeStyle='rgba(74,69,53,.2)';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(36,y);ctx.lineTo(W,y);ctx.stroke();
+  }
+
+  // Conductivity heatmap on section
+  if(S.layers.conductivity){
+    const id=ctx.createImageData(W-55,bot-top);
+    for(let px=0;px<W-55;px++){
+      for(let py=0;py<bot-top;py++){
+        const nx=px/(W-55),nz=py/(bot-top);
+        const cx=0.48,cz=0.55;
+        const d=Math.sqrt((nx-cx)**2*1.2+(nz-cz)**2*0.8);
+        let v=Math.max(0,1-d*2.5+sn(nx*8,nz*8,1)*.3);
+        v+=sn(nx*16,nz*16,2)*.12;
+        if(S.layers.magnetics)v+=Math.max(0,(1-Math.sqrt((nx-.3)**2+(nz-.4)**2)*3))*.2;
+        v=Math.max(0,Math.min(1,v));
+        const i=(py*(W-55)+px)*4;
+        const [r,g,b]=jetColor(v);
+        id.data[i]=r;id.data[i+1]=g;id.data[i+2]=b;id.data[i+3]=200;
+      }
+    }
+    ctx.putImageData(id,38,top);
+  }
+
+  // Geological formations as curved bands
+  if(S.layers.formations){
+    ctx.save();ctx.globalAlpha=0.5;
+    FORMATIONS.forEach((f,i)=>{
+      if(i>=FORMATIONS.length-1)return;
+      const d=f.depth*maxD;
+      const d2=FORMATIONS[i+1].depth*maxD;
+      const y1=toY(d),y2=toY(d2);
+      ctx.fillStyle='rgb('+f.color[0]+','+f.color[1]+','+f.color[2]+')';
+      ctx.beginPath();
+      ctx.moveTo(38,y1);
+      // wavy top line
+      for(let x=38;x<W-17;x+=4){
+        const wave=sn(x/150,i*.7,i)*8-4;
+        ctx.lineTo(x,y1+wave);
+      }
+      ctx.lineTo(W-17,y2);
+      for(let x=W-17;x>38;x-=4){
+        const wave=sn(x/150,(i+1)*.7,i+1)*8-4;
+        ctx.lineTo(x,y2+wave);
+      }
+      ctx.closePath();ctx.fill();
+      // Formation label
+      ctx.globalAlpha=0.9;
+      ctx.fillStyle='rgba(255,255,255,0.45)';ctx.font='8px IBM Plex Mono';
+      ctx.fillText(f.name,W-80,(y1+y2)/2+3);
+      ctx.globalAlpha=0.5;
+    });
+    ctx.restore();
+  }
+
+  // Ore body
+  if(S.layers.ore){
+    const ocx=W*.48,ocy=toY(maxD*.55);
+    const ow=W*.14,oh=(bot-top)*.13*(S.oreT/.3);
+    const og=ctx.createRadialGradient(ocx,ocy,4,ocx,ocy,ow);
+    og.addColorStop(0,'rgba(200,168,75,.8)');og.addColorStop(.5,'rgba(160,90,44,.55)');og.addColorStop(1,'transparent');
+    ctx.save();ctx.fillStyle=og;ctx.beginPath();ctx.ellipse(ocx,ocy,ow,oh,.05,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=.2;ctx.strokeStyle='#c8a84b';ctx.lineWidth=.8;
+    ctx.beginPath();ctx.ellipse(ocx,ocy,ow,oh,.05,0,Math.PI*2);ctx.clip();
+    for(let hx=ocx-ow*2;hx<ocx+ow*2;hx+=7){
+      ctx.beginPath();ctx.moveTo(hx,ocy-oh*2);ctx.lineTo(hx+oh*2,ocy+oh*2);ctx.stroke();
+    }
+    ctx.restore();
+    // Label
+    ctx.fillStyle='#e8c96a';ctx.font='bold 10px IBM Plex Mono';
+    ctx.fillText('Ore Body',ocx+ow+6,ocy+3);
+    ctx.fillStyle='#c8a84b';ctx.font='9px IBM Plex Mono';
+    ctx.fillText(S.oreT.toFixed(1)+'% CuEq',ocx+ow+6,ocy+15);
+  }
+
+  // Drill hole
+  if(S.layers.drillholes){
+    const dholes=[
+      {x:W*.35,angle:-0.08,main:false},{x:W*.48,angle:0,main:true},{x:W*.58,angle:0.05,main:false},
+      {x:W*.28,angle:0.06,main:false},{x:W*.65,angle:-0.04,main:false},{x:W*.40,angle:0.03,main:false},
+    ];
+    dholes.forEach(dh=>{
+      const surfY=top+2;
+      const botX=dh.x+Math.tan(dh.angle)*(bot-surfY);
+      ctx.strokeStyle=dh.main?'#e85555':'#b87333';ctx.lineWidth=dh.main?2:1.2;ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(dh.x,surfY);ctx.lineTo(botX,bot-10);ctx.stroke();
+      ctx.beginPath();ctx.arc(dh.x,surfY,dh.main?4:2.5,0,Math.PI*2);
+      ctx.fillStyle=dh.main?'#e85555':'#c8a84b';ctx.fill();
+      if(dh.main){
+        ctx.fillStyle='#e8c96a';ctx.font='9px IBM Plex Mono';ctx.fillText('TH25-138',dh.x+6,surfY-4);
+        ctx.fillStyle='#7a7060';ctx.fillText(S.depth+'m',botX-16,bot-14);
+      }
+    });
+  }
+
+  // Surface line
+  ctx.strokeStyle='#5a7a4a';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(38,top);
+  for(let x=38;x<W-17;x+=3)ctx.lineTo(x,top+sn(x/180,0,5)*14-7);
+  ctx.stroke();
+
+  // Title
+  ctx.fillStyle='rgba(10,12,10,0.75)';ctx.fillRect(0,0,W,28);
+  ctx.fillStyle='#c8a84b';ctx.font='bold 10px IBM Plex Mono';
+  ctx.fillText("Cross-Section A — A'  |  Depth: 0 – "+S.depth+"m  |  Thira Target",10,17);
+
+  updateLegend('section');
+}
+
+// ── Legend ──
+function updateLegend(mode){
+  const ti=document.getElementById('legTitle');
+  const li=document.getElementById('legItems');
+  if(mode==='raster'){
+    ti.textContent='Conductivity (S/m)';
+    li.innerHTML=`
+      <div class="leg-item"><div class="leg-sw" style="background:linear-gradient(to right,rgb(0,0,180),rgb(0,180,255))"></div>Low</div>
+      <div class="leg-item"><div class="leg-sw" style="background:linear-gradient(to right,rgb(0,180,255),rgb(50,220,100))"></div>Moderate</div>
+      <div class="leg-item"><div class="leg-sw" style="background:linear-gradient(to right,rgb(50,220,100),rgb(240,220,30))"></div>High</div>
+      <div class="leg-item"><div class="leg-sw" style="background:linear-gradient(to right,rgb(240,220,30),rgb(220,40,20))"></div>Anomalous</div>`;
+  } else if(mode==='block'){
+    ti.textContent='Formations';
+    li.innerHTML=FORMATIONS.slice(0,5).map(f=>`<div class="leg-item"><div class="leg-sw" style="background:rgb(${f.color})"></div>${f.name}</div>`).join('');
+  } else {
+    ti.textContent='Conductivity';
+    li.innerHTML=`
+      <div class="leg-item"><div class="leg-sw" style="background:rgb(0,0,180)"></div>Low</div>
+      <div class="leg-item"><div class="leg-sw" style="background:rgb(240,220,30)"></div>High</div>
+      <div class="leg-item"><div class="leg-sw" style="background:#c8a84b"></div>Ore Body</div>`;
+  }
+}
+
+// ── Draw ──
+function draw(){
+  document.getElementById('crosshair').textContent='Plunge +'+S.plunge+'°  Azimuth '+S.azimuth+'°';
+  if(S.view==='raster') drawRaster();
+  else if(S.view==='block') drawBlock();
+  else drawSection();
+}
+
+function toggleLayer(el){
+  el.classList.toggle('active');
+  S.layers[el.dataset.layer]=el.classList.contains('active');
+  draw();
+}
+
+function setView(v,btn){
+  S.view=v;
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const lbls={raster:'EM Conductivity Raster — Thira Target',block:'3D Geological Block Model — Thira Target',section:"Cross-Section A — A' — Thira Target"};
+  document.getElementById('viewLabel').textContent=lbls[v];
+  draw();
+}
+
+draw();
+
+// ── Mobile nav ──
+function toggleMobileNav(){
+  const nav=document.getElementById('mobileNav');
+  const btn=document.getElementById('hamburger');
+  nav.classList.toggle('open');
+  btn.classList.toggle('open');
+  document.body.style.overflow=nav.classList.contains('open')?'hidden':'';
+}
+function closeMobileNav(){
+  document.getElementById('mobileNav').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ── CAROUSEL ──
+const CARDS = [
+  { icon:'⚡', title:'EM & Magnetic Interpretation',  body:'Raw airborne and ground surveys processed into clean anomaly maps — revealing structure and conductors beneath the surface.' },
+  { icon:'🎯', title:'Drill Target Generation',        body:'Multi-dataset integration ranks drill holes by probability. Every metre drilled is justified by data.' },
+  { icon:'📊', title:'Interactive Deliverables',       body:'Move beyond static PDFs. Clients explore results directly — toggling layers, adjusting thresholds, visualising outcomes in real time.' },
+  { icon:'🗺️', title:'3D Geological Modelling',        body:'Subsurface geology in three dimensions from borehole logs, surface mapping, and geophysical inversion.' },
+  { icon:'🔬', title:'Geochemical Analysis',           body:'Sampling programs designed and interpreted to complement geophysical anomalies and define economic targets.' },
+  { icon:'📡', title:'Remote Sensing & AI',            body:'Satellite imagery, hyperspectral data, and ML classification accelerate early-stage target generation.' },
+  { icon:'🧪', title:'Petrophysical Modelling',        body:'Rock property analysis ties geophysical responses to real mineralogy — reducing ambiguity in interpretation.' },
+  { icon:'📈', title:'Resource Estimation',            body:'Geostatistical block modelling and kriging to estimate tonnage and grade with confidence envelopes.' },
+];
+
+// Responsive: cards visible based on viewport
+function getVisible(){
+  const w=window.innerWidth;
+  if(w<=600) return 1;
+  if(w<=900) return 2;
+  return 3;
+}
+const VISIBLE = 3; // kept for reference, getVisible() used at runtime
+const track  = document.getElementById('carouselTrack');
+const dotsEl = document.getElementById('carouselDots');
+
+// Spring physics state
+let current  = 0;          // logical index (can go negative / beyond length — infinite)
+let targetX  = 0;
+let currentX = 0;
+let vel      = 0;
+let rafId    = null;
+
+// Build: 3 clones before + real cards + 3 clones after for seamless wrap
+function buildTrack() {
+  const all = [...CARDS, ...CARDS, ...CARDS]; // triple for infinite
+  track.innerHTML = all.map((c, i) => `
+    <div class="carousel-card" data-idx="${i}">
+      <div class="fi">${c.icon}</div>
+      <h3>${c.title}</h3>
+      <p>${c.body}</p>
+    </div>`).join('');
+}
+
+// Build dots (one per real card)
+function buildDots() {
+  dotsEl.innerHTML = CARDS.map((_, i) =>
+    `<div class="carousel-dot${i===0?' active':''}" onclick="jumpTo(${i})"></div>`
+  ).join('');
+}
+
+function updateDots() {
+  const realIdx = ((current % CARDS.length) + CARDS.length) % CARDS.length;
+  dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === realIdx);
+  });
+}
+
+function cardWidth() {
+  const card = track.querySelector('.carousel-card');
+  return card ? card.getBoundingClientRect().width : 0;
+}
+
+// Snap current logical index → pixel target
+// We offset by CARDS.length so the middle copy is the "home" set
+function idxToX(idx) {
+  return -(CARDS.length + idx) * cardWidth();
+}
+
+function snapCurrentX() {
+  currentX = idxToX(current);
+  targetX  = currentX;
+  vel      = 0;
+  applyTransform(currentX);
+}
+
+function applyTransform(x) {
+  track.style.transform = `translateX(${x}px)`;
+}
+
+// Spring animation loop
+const STIFFNESS = 220;
+const DAMPING   = 26;
+const MASS      = 1;
+
+function springTick() {
+  const dx    = targetX - currentX;
+  const force = dx * STIFFNESS / MASS;
+  vel  += (force - vel * DAMPING) / 60;   // ~60fps step
+  currentX += vel / 60;
+
+  applyTransform(currentX);
+
+  // Settle check
+  if (Math.abs(dx) < 0.08 && Math.abs(vel) < 0.08) {
+    currentX = targetX;
+    vel = 0;
+    applyTransform(currentX);
+
+    // Silent wrap — jump to middle copy with no visible change
+    if (current >= CARDS.length) {
+      current -= CARDS.length;
+      snapCurrentX();
+    } else if (current < 0) {
+      current += CARDS.length;
+      snapCurrentX();
+    }
+    rafId = null;
+    return;
+  }
+  rafId = requestAnimationFrame(springTick);
+}
+
+function animateTo(newIdx) {
+  current = newIdx;
+  targetX = idxToX(current);
+  updateDots();
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(springTick);
+}
+
+function next() { animateTo(current + 1); }
+function prev() { animateTo(current - 1); }
+function jumpTo(idx) {
+  // find closest copy
+  const realIdx = ((current % CARDS.length) + CARDS.length) % CARDS.length;
+  const diff = idx - realIdx;
+  animateTo(current + diff);
+}
+
+// Init
+buildTrack();
+buildDots();
+// Wait for layout then snap into position
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    snapCurrentX();
+  });
+});
+
+document.getElementById('nextBtn').addEventListener('click', next);
+document.getElementById('prevBtn').addEventListener('click', prev);
+
+// Re-snap on resize (debounced)
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { snapCurrentX(); }, 60);
+});
+
+// Keyboard support
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft')  prev();
+});
+
+// Touch / swipe
+let touchStartX = null;
+track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
+track.addEventListener('touchend', e => {
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 40) dx < 0 ? next() : prev();
+  touchStartX = null;
+});
+</script>
+</body>
+</html>
